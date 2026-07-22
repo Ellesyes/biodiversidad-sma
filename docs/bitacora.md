@@ -15,3 +15,16 @@
 - Crear columna combinada de nombre de especie (NombreComun o Género+Epíteto si falta).
 - Diseñar y crear las tablas normalizadas (dim_campana, dim_estacion, dim_taxon, fact_ocurrencia).
 - Escribir script de transformación raw → normalizado.
+
+## 2026-07-21 11:11
+- Instalé PostgreSQL localmente con Postgres.app (corriendo en puerto 5432).
+- Creé la base de datos `biodiversidad`.
+- Diseñamos el esquema completo en `schema.sql`: 3 dimensiones (dim_campana, dim_estacion, dim_taxon) + 3 tablas de hechos (fact_ocurrencia, fact_captura, fact_adaptacion), con diagrama ER de referencia.
+- Ejecuté `schema.sql` contra la base — las 6 tablas quedaron creadas correctamente.
+- Intenté descargar la carpeta completa de Drive (16 regiones × Datos_Monitoreo/Datos_Rescate) vía "Descargar" en la web — Drive la dividió en 6 zips y al extraerlos faltó la región Ñuble. Decidí reiniciar la descarga con un método más confiable.
+
+### Pendiente para mañana
+- [ ] Instalar Google Drive para escritorio y copiar la carpeta Biodiversidad completa (sin zips) a data/, verificando que estén las 16 regiones y ~754 CSV en Datos_Monitoreo + Datos_Rescate (Captura y AdaptacionRelocalizacion).
+- [ ] Escribir el script de ingesta masiva (os.walk por región/año/tipo) que cargue todos los CSV a tablas raw en Postgres.
+- [ ] Escribir el script de transformación raw → dim/fact (con upsert idempotente usando los IDs únicos de la SMA).
+- [ ] Commit y push a GitHub de los avances.
