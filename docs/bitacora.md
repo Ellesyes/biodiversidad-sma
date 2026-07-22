@@ -28,3 +28,17 @@
 - [ ] Escribir el script de ingesta masiva (os.walk por región/año/tipo) que cargue todos los CSV a tablas raw en Postgres.
 - [ ] Escribir el script de transformación raw → dim/fact (con upsert idempotente usando los IDs únicos de la SMA).
 - [ ] Commit y push a GitHub de los avances.
+
+
+## 2026-07-22 (continuación)
+- Resuelto: la región Ñuble faltaba sistemáticamente en las descargas masivas de Drive (Datos_Monitoreo, Captura y AdaptacionRelocalizacion) — se descargó y agregó manualmente en cada carpeta.
+- Confirmado dataset completo: 16 regiones, 1034 archivos CSV en total.
+- Creadas tablas raw en Postgres (raw_monitoreo, raw_captura, raw_adaptacion) usando columna JSONB para flexibilidad.
+- Escrito y ejecutado `ingesta_masiva.py`: recorre automáticamente las 16 regiones × 3 tipos de tabla y carga cada CSV a su tabla raw correspondiente.
+- Los 1034 archivos se procesaron correctamente.
+- Corrigido .gitignore: la regla anterior no cubría CSV en subcarpetas anidadas.
+
+### Próximos pasos
+- [ ] Confirmar conteo total de filas en las tablas raw.
+- [ ] Escribir script de transformación raw → dim/fact (normalizado).
+- [ ] Empezar a explorar la data completa (todas las regiones, no solo Biobío).
