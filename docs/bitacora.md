@@ -42,3 +42,16 @@
 - [ ] Confirmar conteo total de filas en las tablas raw.
 - [ ] Escribir script de transformación raw → dim/fact (normalizado).
 - [ ] Empezar a explorar la data completa (todas las regiones, no solo Biobío).
+
+## 2026-07-22 23:59
+- Detectado y resuelto: campos como HoraInicioEvento contienen texto ("No registrada") en vez de valores válidos, lo que rompía las conversiones de tipo.
+- Creadas funciones auxiliares en Postgres (safe_date, safe_time, safe_numeric, safe_int) que devuelven NULL en vez de fallar ante datos sucios — patrón robusto para producción.
+- Escrito `transformar.sql`: transformación completa raw (JSONB) -> modelo normalizado (dim/fact), usando SQL puro por el volumen (16.8M filas).
+- Validado con `transformar_prueba_biobio.sql` (filtro de una sola región): funcionó completo, ~1.47M filas resultantes solo de Biobío, ~10 min de proceso.
+- Lanzado `transformar.sql` completo (sin filtro), aprovechando que es idempotente (Biobío no se duplica, solo se agregan las 15 regiones restantes).
+
+### Próximos pasos
+- [ ] Confirmar que transformar.sql completo terminó sin errores y contar filas finales en cada tabla dim/fact.
+- [ ] Crear índices en las tablas fact (por fecha, región, taxón) para que las consultas sean rápidas.
+- [ ] Empezar el primer análisis real: tendencias por especie/región usando el modelo normalizado.
+- [ ] Configurar el PATH permanente para psql (evitar escribir la ruta completa cada vez).
