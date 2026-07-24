@@ -55,3 +55,20 @@
 - [ ] Crear índices en las tablas fact (por fecha, región, taxón) para que las consultas sean rápidas.
 - [ ] Empezar el primer análisis real: tendencias por especie/región usando el modelo normalizado.
 - [ ] Configurar el PATH permanente para psql (evitar escribir la ruta completa cada vez).
+
+
+## 2026-07-24
+- Detectado problema serio de rendimiento: el JOIN entre raw_monitoreo y dim_taxon usaba IS NOT DISTINCT FROM, operador no indexable en Postgres — forzaba a Postgres a comparar cada una de las 16M filas contra las ~26,000 especies una por una (nested loop), en vez de usar un índice. Resultado: el proceso llevaba más de 12 horas corriendo.
+- Solución: agregada columna calculada `taxon_key` a dim_taxon (género+epíteto+infraespecífico combinados en un texto), con índice. Cambiado el join a igualdad simple (=) sobre esa llave, permitiendo hash join en vez de nested loop.
+- También se optimizaron las funciones safe_* (de EXCEPTION/PLpgSQL a validación por regex en SQL puro) — más rápidas pero no eran el cuello de botella principal, el join sí lo era.
+- Transformación completa raw -> dim/fact terminada para las 16 regiones:
+  - fact_ocurrencia: 13,089,453 filas
+  - fact_captura: 309,143 filas
+  - fact_adaptacion: 453,119 filas
+- Pendiente confirmar mañana: por qué la cantidad en fact es menor que en raw (¿solo por IDs nulos filtrados, o hay duplicados descartados por ON CONFLICT que valga la pena revisar?).
+
+### Próximos pasos
+- [ ] Confirmar que la diferencia raw vs fact se explica completamente por filas sin ID (no por pérdida de datos inesperada).
+- [ ] Crear índices adicionales en fact_ocurrencia (fecha_evento, estacion_replica_sma_id) para consultas rápidas.
+- [ ] Primera consulta analítica real: especie más registrada por región.
+- [ ] Fijar el PATH de psql de forma permanente.
